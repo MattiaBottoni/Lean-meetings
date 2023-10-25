@@ -1,10 +1,10 @@
 import Mathlib.Tactic
 import Mathlib.Data.Real.Basic
 
---In order to manipulate equations in Lean (which you will need to do in exercise 2.1),
---you need to know a lot of tactics. I will show you here how to they are used, but I also
---wrote a cheat sheet were they are all on. So if you prefer to directly solve exercise 2.1,
---you can skip the next part.
+/-In order to manipulate equations in Lean (which you will need to do in exercise 2.1),
+you need to know a lot of tactics. I will show you here how to they are used, but I also
+wrote a cheat sheet were they are all on. So if you prefer to directly solve exercise 2.1,
+you can skip the next part.-/
 section
 variable (a b c : ℝ)
 
@@ -83,7 +83,7 @@ example : (a + b + c = 5) ↔ (a + (b + c) = 5) := by
 constructor
 intro h
 rw [add_assoc] at h
---from now on, I won't right the other possibility anymore.
+--from now on, I won't write the other possibility anymore.
 exact h
 intro h
 rw [← add_assoc] at h
@@ -153,26 +153,33 @@ exact hb
 done
 end
 
----------------------------------------------------------------------------------------
+--Exercises from the exercises sheet 2-----------------------------------------------------------
 
-section
+section --here I use section, because the variables I use here should only be used in this part.
   variable {α : Type _}
   variable (I J : Set α)
   variable (A : α → Set α)
   open Set
 
-  --exercise 1.2.
-  example (h1 : J ≠ ∅) (h2 : J ⊆ I) : (⋃ j, A j) ⊆ (⋃ i, A i) := by
-  intro x
-  intro h
-  exact h
+  --exercise 1.2. --does not work yet!!
+  example (h2 : J ⊆ I) : (⋃ j ∈ J, A j) ⊆ (⋃ i ∈ I, A i) := by
+  --intro x
+  --intro h
+  --have h3 : x ∈ ⋃ (i : α) (_ : i ∈ I), A i by [h2]
+  intros x hx
+  rcases hx with ⟨j, hj, hxj⟩
+  --exact ⟨j, h2 hj, hxj⟩
+  --apply h2 at h
   done
 
-  --exercise 1.3.
-  example (h1 : J ≠ ∅) (h2 : J ⊆ I) : (⋂ i, A i) ⊆ (⋂ j, A j) := by
-  intro x
-  intro h
-  exact h
+
+  --exercise 1.3. --does not work yet!!
+  example (h2 : J ⊆ I) : (⋂ i ∈ I, A i) ⊆ (⋂ j ∈ J, A j) := by
+  --intro x
+  --intro h
+  --sorry
+  intros x hx i hi
+  exact hx _ (h2 hi)
   done
 end
 
@@ -204,12 +211,11 @@ rw [sub_eq_zero] at h2
 exact h2
 done
 
---exercise 2.2.
---For this exercise you will need the "by_cases" tactic (which you learned in exercise sheet 1)
---and the "left", "right" tactics.
 
-example (a : ℤ) (k : ℤ): (k * a^2 = 1* a) → ((a = -1) ∨ (a = 1) ∨ (a = 0)) := by
+--exercise 2.2.
+example (a : ℤ) /-(k : ℤ)-/: /-(a ^ 2 ∣ a)-/ (k * a^2 = 1* a) → ((a = -1) ∨ (a = 1) ∨ (a = 0)) := by
 intro h
+--intro ⟨k, hk⟩
 rw [sq a] at h
 rw [← mul_assoc] at h
 rw [← sub_eq_zero] at h
@@ -217,27 +223,20 @@ rw [← sub_mul] at h
 rw [mul_eq_zero] at h
 rcases h with h1 | h2
 rw [sub_eq_zero] at h1
-sorry
-right
-right
-exact h2
-done
-
-
-example (a : ℤ) : (a ^ 2 ∣ a) → ((a = -1) ∨ (a = 1) ∨ (a = 0)) := by
-intro h
-by_cases h2 : a = 0
-right
-right
-exact h2
-by_cases h1 : a = -1
+rw [← or_assoc]
 left
+--rw [← isUnit_of_dvd_one ⟨ k, ?_⟩] at h1
+rw [or_comm]
+apply Int.isUnit_iff.1
+apply isUnit_of_dvd_one ⟨ k, ?_⟩
+symm
+rw [mul_comm]
 exact h1
 right
-left
-apply Int.eq_one_of_dvd_one
-
+right
+exact h2
 done
+
 
 --exercise 2.3.
 --We will do this one on paper.
@@ -273,12 +272,14 @@ exact dvd_mul_of_dvd_left hy z
 exact dvd_mul_of_dvd_right hz y
 done
 
+
 --exercise 4.1.
 --we solve this on paper.
 
 
 --exercise 4.2.
 --we solve this on paper.
+
 
 --execise 5.1.
 variable
@@ -309,7 +310,6 @@ rw [eq_comm] at h
 rw [h] at hx
 exact hx.1
 done
-
 
 
 --exercise 5.2.
