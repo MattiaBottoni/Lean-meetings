@@ -8,9 +8,11 @@ open Nat
 open BigOperators
 open Finset
 
+example : 0 + n = n := by --try it yourself
+sorry
+done
 
-
-example : 0 + n = n := by
+example : 0 + n = n := by --solution
 induction' n with d hd
 rw [Nat.add_zero]
 rw [Nat.add_succ]
@@ -18,7 +20,11 @@ rw [hd]
 done
 
 
-example : n + m = m + n := by
+example : n + m = m + n := by --try it yourself
+sorry
+done
+
+example : n + m = m + n := by --solution
 induction' n with d hd
 rw [Nat.add_zero]
 rw [Nat.zero_add]
@@ -27,7 +33,12 @@ rw [Nat.succ_add]
 rw [hd]
 done
 
-example : ∑ k in range (n+1), k = n*(n+1)/(2 : ℕ) := by
+
+example : ∑ k in range (n+1), k = n*(n+1)/(2 : ℕ) := by --It does not work yet!
+sorry
+done
+
+example : ∑ k in range (n+1), k = n*(n+1)/(2 : ℕ) := by --solution
 induction' n with d hd
 rw [sum_range_one]
 simp
@@ -42,7 +53,11 @@ sorry
 done
 
 
-example : ∑ k in Finset.Ico 1 (n+1), (2*k-1) = n^2 := by
+example : ∑ k in Finset.Ico 1 (n+1), (2*k-1) = n^2 := by --try it yourself
+sorry
+done
+
+example : ∑ k in Finset.Ico 1 (n+1), (2*k-1) = n^2 := by --solution
 induction' n with d hd
 simp
 rw [succ_eq_add_one]
