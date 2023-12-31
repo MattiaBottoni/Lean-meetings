@@ -2,336 +2,147 @@ import Mathlib.Tactic
 import Mathlib.Data.Real.Basic
 
 /-In order to manipulate equations in Lean (which you will need to do in exercise 2.1),
-you need to know a lot of tactics. I will show you here how to they are used, but I also
+you need to know a lot of algebra tactics. I will show you here how to they are used, but I also
 wrote a cheat sheet were they are all on. So if you prefer to directly solve exercise 2.1,
-you can skip the next part.-/
+you can skip the next section.-/
+
 section
 variable (a b c : ℝ)
 
 
-example :  (a - b = 0) ↔ (a = b) := by
-constructor
-intro h
-rw [sub_eq_zero] at h
---or rw ← sub_eq_zero,
-exact h
-intro h
-rw [sub_eq_zero]
---or rw ← sub_eq_zero at h,
-exact h
+example :  (a - b = 0) ↔ (a = b) := by --Have a look at the cheat sheet to find the proper rewrite (rw). Don't forget that you can (and must) use tacticts from level 1. With "rw [] at h", you can rewrite a hypothesis.
+sorry
 done
 
-example : (a - b - c = 5) ↔ (a - (b + c) = 5) := by
-constructor
-intro h
-rw [sub_sub] at h
--- or rw ← sub_sub,
-exact h
-intro h
-rw [sub_sub]
---or rw ← sub_sub at h,
-exact h
+
+example : (a - b - c = 5) ↔ (a - (b + c) = 5) := by --If you want to use a rw tactic backwards, write "rw [← blabla]". You can write "←" by typing "\l"
+sorry
 done
 
-example : (a + b = 5) ↔ (b + a = 5) := by
-constructor
-intro h
-rw [add_comm] --here we use add_comm in the goal.
-exact h
-intro h
-rw [add_comm] at h --here we use add_comm in the hypothesis
-exact h
+
+example : (a + b = 5) ↔ (b + a = 5) := by --Up to a certain example, you will just need "constructor", "intro" and "exact" from level 1.
+sorry
 done
 
-example : (a + b - c = 5) ↔ (a + (b - c) = 5) := by
-constructor
-intro h
-rw [add_sub]
---or rw ← add_sub at h,
-exact h
-intro h
-rw [← add_sub]
---or rw add_sub at h,
-exact h
+
+example : (a + b - c = 5) ↔ (a + (b - c) = 5) := by --Notice that you can always decide if you want to rewrite the hypothesis or the goal. Depending on how they look, you will need "←".
+sorry
 done
+
 
 example : (a^2 - b^2 = 5) ↔ ((a+b)*(a-b) = 5) := by
-constructor
-intro h
-rw [← sq_sub_sq]
---or rw sq_sub_sq at h,
-exact h
-intro h
-rw [sq_sub_sq]
---or rw ← sq_sub_sq at h,
-exact h
+sorry
 done
+
 
 example : (a - b = 5) ↔ (a + -b = 5) := by
-constructor
-intro h
-rw [sub_eq_add_neg] at h
---or rw ← sub_eq_add_neg,
-exact h
-intro h
-rw [← sub_eq_add_neg] at h
---or rw sub_eq_add_neg,
-exact h
+sorry
 done
+
 
 example : (a + b + c = 5) ↔ (a + (b + c) = 5) := by
-constructor
-intro h
-rw [add_assoc] at h
---from now on, I won't write the other possibility anymore.
-exact h
-intro h
-rw [← add_assoc] at h
-exact h
+sorry
 done
+
 
 example : (a + b + c = 5) ↔ (a + c + b = 5) := by
-constructor
-intro h
-rw [add_assoc] at h
-rw [add_comm b c] at h
-rw [← add_assoc] at h
-exact h
-intro h
-rw [add_assoc] at h
-rw [add_comm c b] at h
-rw [← add_assoc] at h
-exact h
+sorry
 done
+
 
 example : (a - b + c = 5) ↔ (a - (b - c) = 5) := by
-constructor
-intro h
-rw [sub_add] at h
-exact h
-intro h
-rw [← sub_add] at h
-exact h
+sorry
 done
+
 
 example : (a * (b - c) = 5) ↔ (a * b - a * c = 5) := by
-constructor
-intro h
-rw [mul_sub] at h
-exact h
-intro h
-rw [← mul_sub] at h
-exact h
+sorry
 done
+
 
 example : ((a - b) * c = 5) ↔ (a * c - b * c = 5) := by
-constructor
-intro h
-rw [sub_mul] at h
-exact h
-intro h
-rw [← sub_mul] at h
-exact h
+sorry
 done
 
-example : (a * b = 0) ↔ (a = 0 ∨ b = 0) := by
-constructor
-intro h
-rw [mul_eq_zero] at h
-rcases h with ha | hb
-left
-exact ha
-right
-exact hb
-intro h
-rw [mul_eq_zero]
-rcases h with ha | hb
-left
-exact ha
-right
-exact hb
-done
+
+example : (a * b = 0) ↔ (a = 0 ∨ b = 0) := by --This last one is a bit more advanced. You will have to use "cases'" and "left/right" here.
+sorry
 end
 
---Exercises from the exercises sheet 2-----------------------------------------------------------
 
-section --here I use section, because the variables I use here should only be used in this part.
-  variable {α : Type _}
+--Exercises from exercise sheet 2-----------------------------------------------------------
+
+section --here I use section, because the variables I use here should only be used in this exercise. This does not need to bother you.
+  variable {α β : Type _}
   variable (I J : Set α)
-  variable (A : α → Set α)
+  variable (A : α → Set β)
   open Set
 
-  --exercise 1.2. --does not work yet!!
-  example (h2 : J ⊆ I) : (⋃ j ∈ J, A j) ⊆ (⋃ i ∈ I, A i) := by
-  --intro x
-  --intro h
-  --have h3 : x ∈ ⋃ (i : α) (_ : i ∈ I), A i by [h2]
-  intros x hx
-  rcases hx with ⟨j, hj, hxj⟩
-  --exact ⟨j, h2 hj, hxj⟩
-  --apply h2 at h
+
+  --exercise 2.1.2.
+  example (h2 : J ⊆ I) : (⋃ j ∈ J, A j) ⊆ (⋃ i ∈ I, A i) := by --This exercise already contains a lot of new notation. Start with "intros x hx" (a way to introduce multiple things at once) and then use "simp" and "simp at hx" to change the goal and hypothesis in a more understandable way. When you will encounter a "∃" in the goal, use "use j" to fix this.
+  sorry
   done
 
 
-  --exercise 1.3. --does not work yet!!
-  example (h2 : J ⊆ I) : (⋂ i ∈ I, A i) ⊆ (⋂ j ∈ J, A j) := by
-  --intro x
-  --intro h
-  --sorry
-  intros x hx i hi
-  exact hx _ (h2 hi)
+  --exercise 2.1.3.
+  example (h2 : J ⊆ I) : (⋂ i ∈ I, A i) ⊆ (⋂ j ∈ J, A j) := by --Use "simp" right at the beginning. At some point you should have a hypotheis with a "∀". To deal with this use "specialize h x"
+  sorry
   done
 end
 
 
---exercise 2.1.
-example (x y : ℝ) :  (x ^ 2 + 5 * y = y ^ 2 + 5 * x) → ((x = y) ∨ (x + y = 5)) := by
-intro h
-rw [← sub_eq_zero] at h
-rw [← sub_sub] at h
-rw [add_comm]  at h 
-rw [← add_sub] at h
-rw [add_comm] at h
-rw [sq_sub_sq] at h
-rw [sub_eq_add_neg] at h
-rw [add_assoc] at h
-rw [add_comm (5*y) (-(5*x))] at h
-rw [← add_assoc] at h
-rw [← sub_eq_add_neg] at h
-rw [sub_add] at h 
-rw [← mul_sub] at h
-rw [← sub_mul] at h
-rw [mul_eq_zero] at h --ask zulip chat for a shorter way
-rcases h with h1 | h2
-right
-rw [sub_eq_zero] at h1
-exact h1
-left
-rw [sub_eq_zero] at h2
-exact h2
+
+--exercise 2.2.1.
+example (x y : ℝ) :  (x ^ 2 + 5 * y = y ^ 2 + 5 * x) → ((x = y) ∨ (x + y = 5)) := by --Have a look at the first three chapters of the repetition level. There you will find some helpful skills to solve this exercise.
+sorry
 done
 
 
---exercise 2.2.
-example (a : ℤ) /-(k : ℤ)-/: /-(a ^ 2 ∣ a)-/ (k * a^2 = 1* a) → ((a = -1) ∨ (a = 1) ∨ (a = 0)) := by
-intro h
---intro ⟨k, hk⟩
-rw [sq a] at h
-rw [← mul_assoc] at h
-rw [← sub_eq_zero] at h
-rw [← sub_mul] at h
-rw [mul_eq_zero] at h
-rcases h with h1 | h2
-rw [sub_eq_zero] at h1
-rw [← or_assoc]
-left
---rw [← isUnit_of_dvd_one ⟨ k, ?_⟩] at h1
-rw [or_comm]
-apply Int.isUnit_iff.1
-apply isUnit_of_dvd_one ⟨ k, ?_⟩
-symm
-rw [mul_comm]
-exact h1
-right
-right
-exact h2
+--exercise 2.2.2.
+example (a : ℤ) : (k * a^2 = 1* a) → ((a = -1) ∨ (a = 1) ∨ (a = 0)) := by --When you get stuck, use "apply?" to continue or have a look at the solutions. I did not know all these tactics and rewrites by heart and you don't need to too!
+sorry
 done
 
 
---exercise 2.3.
+--exercise 2.2.3.
 --We will do this one on paper.
 
 
---exercise 3.1.
-example (x : ℝ) : (x ≤ -1) → (x ^ 3 - x) ≤ 0 := by
-intro h
-have h2 : (x+1) ≤ 0
-linarith
-rw [pow_three]
-rw [← mul_one x]
-rw [mul_assoc]
-rw [← mul_sub]
-rw [mul_one x]
-rw [one_mul]
-rw [← pow_two]
---have h3 : x * (x^2-1) ≤ 0,
-rw [mul_nonpos_iff]
-right
-constructor
-linarith
-nlinarith
---nlinarith, --reuse if you use h3,
+
+--exercise 2.3.1.
+example (x : ℝ) : (x ≤ -1) → (x ^ 3 - x) ≤ 0 := by --"linarith" and "nlinarith" are very useful here.
+sorry
 done
 
 
---exercise 3.2.
-example (x y z : ℤ) : ((x ∣ y) ∨ (x ∣ z)) → (x ∣ y * z) := by
-intro h
-rcases h with hy | hz
-exact dvd_mul_of_dvd_left hy z
-exact dvd_mul_of_dvd_right hz y
+--exercise 2.3.2.
+example (x y z : ℤ) : ((x ∣ y) ∨ (x ∣ z)) → (x ∣ y * z) := by --There are tactics here that solve this right-away. Use "exact?" to find them.
+sorry
 done
 
 
---exercise 4.1.
---we solve this on paper.
+
+--exercise 2.4.
+--we solve this one on paper.
 
 
---exercise 4.2.
---we solve this on paper.
 
-
---execise 5.1.
+--execise 2.5.1.
 variable
   {X : Type _}
   (A B C : Set X)
-  (x y z : X)   
+  (x y z : X)
 
 open Set
 
 
-example (hc : y ∈ C): (A ×ˢ C) = (B ×ˢ C) → A = B := by
-intro h
-ext x
-constructor
-intro ha
-have hx : (x,y) ∈ (A ×ˢ C)
-constructor
-exact ha
-exact hc
-rw [h] at hx
-exact hx.1
-intro hb
-have hx : (x,y) ∈ (B ×ˢ C)
-constructor
-exact hb
-exact hc
-rw [eq_comm] at h
-rw [h] at hx
-exact hx.1
+example (hc : y ∈ C): (A ×ˢ C) = (B ×ˢ C) → A = B := by --This proof is not so hard, but the new notations are a bit tricky. After you do "intro h", type "ext x". Now you will have to prove that x ∈ A ↔ x ∈ B. At two points you will have to use "have hx : (x,y) ∈ (A ×ˢ _)" where you will put C or B in the blank space.
+sorry
 done
 
 
---exercise 5.2.
-example : 𝒫(A ∩ B) = 𝒫(A) ∩ 𝒫(B) := by
-  ext
-  constructor
-  intro h
-  rw [mem_powerset_iff] at h
-  rw [subset_inter_iff] at h
-  rcases h with ⟨ ha,  hb⟩ 
-  constructor
-  rw [mem_powerset_iff]
-  exact ha
-  exact hb
-  intro h
-  rw [mem_inter_iff] at h
-  rcases h with ⟨ ha, hb⟩ 
-  rw [mem_powerset_iff] at ha
-  rw [mem_powerset_iff] at hb
-  rw [mem_powerset_iff]
-  rw [subset_inter_iff]
-  constructor
-  exact ha
-  exact hb
-  done
+--exercise 2.5.2.
+example : 𝒫(A ∩ B) = 𝒫(A) ∩ 𝒫(B) := by --Again this is just a bit tricky because we are working with powersets. But if you use "rw? at h" sometimes, you should be able to prove this.
+sorry
+done

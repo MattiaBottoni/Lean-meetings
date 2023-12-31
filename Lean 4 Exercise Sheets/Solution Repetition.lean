@@ -7,24 +7,29 @@ open Set --I open all these features so that I can use the functions without the
 open Function
 open Real
 
+
 --know the ring_nf, nlinarith and norm_num tactics
 example : x - y = -y + x := by
 ring_nf
 done
+
 
 example : y ≤ 3 → x + y ≤ 3 + x := by
 intro h
 linarith
 done
 
+
 example : y ≤ 4 → y^2 ≤ 16 := by
 intro h
 nlinarith
 done
 
+
 example : (2:ℝ) + 2 = 4 := by
 norm_num
 done
+
 
 
 --know the have tactic
@@ -47,6 +52,7 @@ exact hxy3
 done
 
 
+
 --know apply? and rw?
 example : (x : ℝ)  = y → exp x = exp y := by
 intro h
@@ -62,13 +68,13 @@ done
 
 
 
-
 --know how to define function from a set to a set
 def set_even : Set ℕ := {n | Even n}
 
 def set_odd : Set ℕ := {n | Odd n}
 
 def even_to_odd : set_even → set_odd := λ n ↦ {val := (n + 1), property := by simp[set_even] ; exact Even.add_one n.prop}
+
 
 example : Injective even_to_odd := by
 rw [Injective]
@@ -80,6 +86,7 @@ simp at *
 rw [SetCoe.ext_iff] at h
 exact h
 done
+
 
 example : Surjective even_to_odd := by
 rw [Surjective]
@@ -98,8 +105,11 @@ apply hy
 simp
 done
 
+
+
 --Proof that a relation is an equivalence relation
 def R_4_dvd (x y : ℤ) : Prop := 4 ∣ (x + 3*y)
+
 
 theorem R_4_dvd_is_reflexive : Reflexive R_4_dvd := by
 rw [Reflexive]
@@ -173,6 +183,7 @@ done
 --Proof that a function is bijective
 def f_linear_Q : ℚ → ℚ := λ x => 2*x + 1
 
+
 theorem f_linear_Q_is_injective : Injective f_linear_Q := by
 rw [Injective]
 intro x y
@@ -218,8 +229,8 @@ def A : Set ℚ := {3*k | k : ℚ}
 
 def B : Set ℚ := {7*k | k : ℚ}
 
-
 def f_A_B : A → B := λ k ↦ {val := (7:ℚ) * (k/3:ℚ), property := by simp [B]}
+
 
 theorem f_A_B_is_injective : Injective f_A_B := by
 rw [Injective]
