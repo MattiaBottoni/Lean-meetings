@@ -1,10 +1,11 @@
 import Mathlib.Tactic
 
-
 /-We will use P, Q and R as our variables. In our case, the variables are statements (Prop)
 which are either true or false.-/
 
 variable (P Q R : Prop)
+
+open Classical  --Did is only used for the proofs that do not rely on tactics.
 
 
 --intro, exact and apply--------------------------------------------------------------------
@@ -19,12 +20,18 @@ implication, use the "apply" tactic to change the goal to the lefthand side of t
 Click through each line of the proof and see what happens for yourself.
 -/
 
+--Show that P ⇒ P.
 example :  P → P := by
 intro h
 exact h
 done
 
+/-For Level 1 only, I will add the proof of each statement without using tactics. Thank you Marius Furter for
+your support in this-/
+example :  P → P := fun p : P => p
 
+
+--Show that P ⇒ (P ⇒ Q) ⇒ Q.
 example: P → (P → Q) → Q:= by
 intro hP
 intro hpq
@@ -32,6 +39,7 @@ apply hpq --here you have to use apply to change the goal to P
 exact hP
 done
 
+example: P → (P → Q) → Q:= fun p : P => fun h : P → Q => h p
 
 --constructor, left/right and rcases--------------------------------------------------------------
 
@@ -47,6 +55,7 @@ on the other hand, your hypothesis had an ∨, you will have to prove the same g
 with the lefthand part of the hypothesis and once with the righthand side.
 Again, do you understand why? -/
 
+--Show that P ⇒ Q ⇒ (P ∧ Q).
 example : P → Q → (P ∧ Q) := by
 intro hp
 intro hq
@@ -55,28 +64,40 @@ exact hp
 exact hq
 done
 
+example : P → Q → (P ∧ Q) := fun p : P => fun q : Q => And.intro p q
 
+
+--Show that (P ∧ Q) ⇒ P.
 example : (P ∧ Q) → P := by
 intro hpq
 cases' hpq with hp hq
 exact hp
 done
 
+example : (P ∧ Q) → P := fun pq : P ∧ Q => And.left pq
 
+
+--Show that P ⇒ (P ∨ Q).
 example : P → (P ∨ Q) := by
 intro hp
 left
 exact hp
 done
 
+example : P → (P ∨ Q) := fun p : P => Or.inl p
 
+
+--Show that Q ⇒ (P ∨ Q).
 example : Q → (P ∨ Q) := by
 intro hq
 right
 exact hq
 done
 
+example : Q → (P ∨ Q) := fun q : Q => Or.inr q
 
+
+--Show that (P ∨ Q) ⇒ (Q ∨ P).
 example : (P ∨ Q) → (Q ∨ P) := by
 intro hpq
 cases' hpq with hp hq
@@ -85,6 +106,8 @@ exact hp
 left
 exact hq
 done
+
+example : (P ∨ Q) → (Q ∨ P) := fun pq : P ∨ Q => pq.elim Or.inr Or.inl
 
 /-keep in mind: ∧ is easy as a hypothesis, but not so easy to prove.
                  ∨ is easy to prove, but not so easy as a hypothesis.-/
@@ -97,6 +120,7 @@ False. To do this, you can use the "by_contra" tactic. If, on the other hand, yo
 the same hypothesis, namely that once it is True and once False (e.g h : x > 0 and ¬x > 0) you can use the
 "by_cases" tactic.-/
 
+--Show that P ⇒ (¬P) ⇒ Q.
 example : P  → (¬P) →  Q := by
 intro hp
 intro hnp
@@ -105,7 +129,10 @@ apply hnp
 exact hp
 done
 
+example : P  → (¬P) →  Q := fun p : P => fun np : ¬P => False.elim (np p)
 
+
+--Show that (Q ∨ ¬Q).
 example : (Q ∨ ¬Q) := by
 by_cases hq : Q --you can also just use by_cases Q, but then the hypothesis is called h.
 left
@@ -113,6 +140,8 @@ exact hq
 right
 exact hq
 done
+
+example : (Q ∨ ¬Q) := Classical.em Q --here we use the excluded middle principle, which is not constructive!
 
 
 --Exercises from exercise sheets 0 and 1------------------------------------------------
@@ -122,6 +151,9 @@ make sense to be implemented in Lean. From sheet 0 we look at exercise 5 and fro
 6 and 7. And the end of this level, I also added both deMorgan laws, as they fit well into this level. -/
 
 --sheet 0 exercise 0.5.1.
+/-Show the following statements are always true, no matter what truth values of P, Q, R are.
+Such statements are called ”tautologies”.
+(Distributive Law). P ∧ (Q ∨ R) ⇐⇒ (P ∧ Q) ∨ (P ∧ R).-/
 example : P ∧ (Q ∨ R) ↔ (P ∧ Q) ∨ (P ∧ R) := by
 constructor --constructor used here for the first time
 intro hpqr --intro used here for the first time
@@ -149,8 +181,29 @@ right
 exact hr
 done
 
+example : P ∧ (Q ∨ R) ↔ (P ∧ Q) ∨ (P ∧ R) := Iff.intro
+    (fun h : P ∧ (Q ∨ R) =>
+      have p : P := And.left h
+      have qr : Q ∨ R := And.right h
+      Or.elim qr
+        (fun q : Q => Or.inl (And.intro p q))
+        (fun r : R => Or.inr (And.intro p r))
+    )
+    (fun h : (P ∧ Q) ∨ (P ∧ R) =>
+      Or.elim h
+      (fun hl : P ∧ Q =>
+        have p : P := And.left hl
+        have q : Q := And.right hl
+        And.intro p (Or.inl q))
+      (fun hr : P ∧ R =>
+        have p : P := And.left hr
+        have r : R := And.right hr
+        And.intro p (Or.inr r))
+      )
+
 
 --sheet 0 exercise 0.5.2.
+/-(Contrapositive). (P ⇒ Q) ⇔ (¬Q ⇒ ¬P).-/
 example : (P → Q) ↔ (¬Q → ¬P) := by
 constructor
 intro h
@@ -167,9 +220,23 @@ exact hnq
 exact hp
 done
 
+example : (P → Q) ↔ (¬Q → ¬P) := Iff.intro
+    (fun h : P → Q =>
+      fun hnq : ¬Q =>
+        fun hp : P =>
+          have q : Q := h hp
+          show False from hnq q
+    )
+    (fun h : ¬Q → ¬P =>
+      fun hp : P =>
+        byContradiction (fun nq : ¬Q => h nq hp)
+    )
+
 
 
 --sheet 1 exercise 1.6.1.
+/-Show the following statements are logically equivalent.
+(P ⇔ ¬Q) ⇔ ((¬P ⇒ Q) ∧ (Q ⇒ ¬P)).-/
 example : (P ↔ ¬Q) ↔ (¬P → Q) ∧ (Q → ¬P) := by
 constructor
 intro h
@@ -200,8 +267,33 @@ apply hpq
 exact hnp
 done
 
+example : (P ↔ ¬Q) ↔ (¬P → Q) ∧ (Q → ¬P) := Iff.intro
+    (fun h : P ↔ ¬Q =>
+      have hpnq : P → ¬Q := Iff.mp h
+      have hnqp : ¬Q → P := Iff.mpr h
+      And.intro
+        (fun hnp : ¬P =>
+          byContradiction (fun hnq : ¬Q => hnp (hnqp hnq)))
+        (fun hq : Q =>
+          fun hnp : P =>
+            have hnq : ¬Q := hpnq hnp
+            show False from hnq hq)
+    )
+    (fun h : (¬P → Q) ∧ (Q → ¬P) =>
+      have hnpq : ¬P → Q := And.left h
+      have hqnp : Q → ¬P := And.right h
+      Iff.intro
+        (fun hp : P =>
+          fun hq : Q =>
+          have hnp : ¬P := hqnp hq
+          hnp hp)
+        (fun hnq : ¬Q =>
+          byContradiction (fun hnp : ¬P => hnq (hnpq hnp)))
+    )
+
 
 --sheet 1 exercise 1.6.2.
+/-¬P ⇒ Q = (¬P ∧ ¬Q) ⇒ Q ∧ ¬Q-/
 example : ¬P → Q ↔ (¬P ∧ ¬Q) → Q ∧ ¬Q := by
 constructor
 intro h
@@ -226,9 +318,28 @@ exact hnp
 exact hnq
 done
 
+example : ¬P → Q ↔ (¬P ∧ ¬Q) → Q ∧ ¬Q := Iff.intro
+    (fun h : ¬P → Q =>
+      fun h2 : ¬P ∧ ¬Q =>
+        have hnp : ¬P := And.left h2
+        have hnq : ¬Q := And.right h2
+        And.intro
+          (h hnp)
+          hnq
+    )
+    (fun h : (¬P ∧ ¬Q) → Q ∧ ¬Q =>
+      fun hnp : ¬P =>
+        byContradiction (fun hnq : ¬Q =>
+        have hnPnQ : ¬P ∧ ¬Q := And.intro hnp hnq
+        have h2 : Q ∧ ¬Q := h hnPnQ
+        show False from h2.right h2.left)
+    )
+
 
 
 --sheet 1 exercise 1.7.1.
+/-Use the laws of logical equivalences (Commutative laws, associative laws, etc.) to verify the following logical equivalences.
+(P ∧ (¬(¬P ∨ Q))) ∨ (P ∧ Q) ⇔ P-/
 example : (P ∧ (¬(¬P ∨ Q))) ∨ (P ∧ Q) ↔ P := by
 constructor
 intro h
@@ -254,8 +365,31 @@ apply hq
 exact hq2
 done
 
+example : (P ∧ (¬(¬P ∨ Q))) ∨ (P ∧ Q) ↔ P := Iff.intro
+    (fun h : (P ∧ (¬(¬P ∨ Q))) ∨ (P ∧ Q) =>
+      Or.elim h
+      (fun h1 : P ∧ (¬(¬P ∨ Q)) =>
+        And.left h1)
+      (fun h2 : P ∧ Q =>
+        And.left h2)
+    )
+    (fun hp : P =>
+      have hq : Q ∨ ¬Q := Classical.em Q
+      Or.elim hq
+      (fun hq : Q =>
+        Or.inr (And.intro hp hq))
+      (fun hnq : ¬Q =>
+        Or.inl (And.intro hp (fun hnpq : ¬P ∨ Q =>
+                                Or.elim hnpq
+                                  (fun hnp : ¬P =>
+                                  show False from hnp hp)
+                                  (fun hq : Q =>
+                                  show False from hnq hq))))
+    )
+
 
 --sheet 1 exercise 1.7.2.
+/-(¬(P ∨ ¬Q)) ∨ (¬P ∧ ¬Q) ⇔ ¬P-/
 example : (¬(P ∨ ¬Q)) ∨ (¬P ∧ ¬Q) ↔ ¬P := by
 constructor
 intro h
@@ -281,9 +415,35 @@ exact hnp
 exact hq
 done
 
+example : (¬(P ∨ ¬Q)) ∨ (¬P ∧ ¬Q) ↔ ¬P := Iff.intro
+    (fun h : (¬(P ∨ ¬Q)) ∨ (¬P ∧ ¬Q) =>
+      Or.elim h
+      (fun h1 : ¬(P ∨ ¬Q) =>
+        fun hp : P =>
+          show False from h1 (Or.inl hp))
+      (fun h2 : ¬P ∧ ¬Q =>
+        And.left h2)
+    )
+    (fun hnp : ¬P =>
+      have hq : Q ∨ ¬Q := Classical.em Q
+      Or.elim hq
+        (fun hq : Q =>
+          Or.inl (fun h : P ∨ ¬Q =>
+                  Or.elim h
+                    (fun h1 : P =>
+                      show False from hnp h1)
+                    (fun h2 : ¬Q =>
+                      show False from h2 hq))
+        )
+        (fun hq : ¬Q =>
+          Or.inr (And.intro hnp hq))
+      )
+
+
 
 --I will also include the deMorgan laws, even though they are not part of the exercise sheets.
 
+--Show that ¬(P ∨ Q) ⇔ ((¬P) ∧ (¬Q)).
 example : ¬(P ∨ Q) ↔ ¬P ∧ ¬Q := by
 constructor
 intro h
@@ -306,7 +466,25 @@ apply hnq
 exact h_right
 done
 
+example : ¬(P ∨ Q) ↔ ¬P ∧ ¬Q := Iff.intro
+    (fun h : ¬(P ∨ Q) =>
+      And.intro
+        (fun hp : P =>
+          show False from h (Or.inl hp))
+        (fun hq : Q =>
+          show False from h (Or.inr hq))
+    )
+    (fun h : ¬P ∧ ¬Q =>
+      fun h2 : P ∨ Q =>
+        Or.elim h2
+        (fun hp : P =>
+          show False from h.left hp)
+        (fun hq : Q =>
+          show False from h.right hq)
+    )
 
+
+--Show that ¬(P ∧ Q) ⇔ ((¬P) ∨ (¬Q)).
 example : ¬(P ∧ Q) ↔ ¬P ∨ ¬Q := by
 constructor
 intro hnpq
@@ -328,3 +506,20 @@ exact hp
 apply hnq
 exact hq
 done
+
+example : ¬(P ∧ Q) ↔ ¬P ∨ ¬Q := Iff.intro
+    (fun h : ¬(P ∧ Q) =>
+      have hq : Q ∨ ¬Q := Classical.em Q
+      Or.elim hq
+        (fun hq : Q =>
+          Or.inl (fun hnp : P =>
+                  show False from h (And.intro hnp hq)))
+        (fun hnq : ¬Q =>
+          Or.inr hnq))
+    (fun h : ¬P ∨ ¬Q =>
+      fun hpq : P ∧ Q =>
+        Or.elim h
+        (fun hnp : ¬P =>
+          show False from hnp hpq.left)
+        (fun hnq : ¬Q =>
+          show False from hnq hpq.right))
